@@ -3,6 +3,10 @@
 This project is to reproduce this vulnerability:
 [Protocol fuzzing to find security vulnerabilities of RabbitMQ](https://onlinelibrary.wiley.com/doi/abs/10.1002/cpe.6012)
 
+* Docker Image:
+```
+docker pull ubuntu:18.04
+```
 
 1. For RabbitMQ 3.6.10
 ```
