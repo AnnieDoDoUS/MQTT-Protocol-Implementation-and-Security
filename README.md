@@ -3,7 +3,7 @@
 This project is to reproduce this vulnerability:
 [Protocol fuzzing to find security vulnerabilities of RabbitMQ](https://onlinelibrary.wiley.com/doi/abs/10.1002/cpe.6012)
 
-1. For RabbitMQ 3.6.10
+## 1. For RabbitMQ 3.6.10
 
 
 * Dockerfile:
@@ -49,7 +49,7 @@ rabbitmqctl add_user test3 1234
 rabbitmqctl set_permissions -p / test3 ".*" ".*" ".*"
 ```
 
-2. For Fuzzer
+## 2. For Fuzzer
 
 * Dockerfile:
 ```
@@ -89,7 +89,7 @@ Be sure to change broker_ip to real broker ip at first.
 cd mqtt_fuzzer
 python2.7 mqtt_fuzz.py [broker_ip] 1883 -ratio 3 -delay 100
 ```
-3. For Publisher
+## 3. For Publisher
 
 * Dockerfile:
 ```
@@ -117,7 +117,7 @@ Be sure to change broker_ip to real broker ip at first.
 mosquitto_pub -h [broker_ip] -p 1883 -t key1 -u test1 -P 1234 -m "hello world!" -i producer
 ```
 
-4. For Subscriber
+## 4. For Subscriber
 * Dockerfile: the same as the publisher
 
 * Build docker image: the same as publisher
