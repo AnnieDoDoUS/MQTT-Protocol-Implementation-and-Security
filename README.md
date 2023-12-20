@@ -83,29 +83,53 @@ docker build -t mqtt_fuzzer
 docker run -it --network my_network --name mqtt_fuzzer mqtt_fuzzer
 ```
 
-* Execute fuzzer:
+* Execute fuzzer in ubuntu:
 Be sure to change broker_ip to real broker ip at first.
 ```
 cd mqtt_fuzzer
 python2.7 mqtt_fuzz.py [broker_ip] 1883 -ratio 3 -delay 100
 ```
 3. For Publisher
+
+* Dockerfile:
 ```
-docker run -it --network my_network --name publisher_ubuntu ubuntu:18.04
+FROM ubuntu:18.04
+
+WORKDIR /app
+
+RUN apt update
+RUN apt install mosquitto-clients -y
 ```
+
+* Build docker image:
 ```
-apt update
-apt install mosquitto-clients -y
-mosquitto_pub -h 172.18.0.2 -p 1883 -t key1 -u test1 -P 1234 -m "hello world!" -i producer
+docker build -t mqtt_client
+```
+
+* Build docker container:
+```
+docker run -it --network my_network --name publisher mqtt_client
+```
+
+* Execute publisher in ubuntu:
+Be sure to change broker_ip to real broker ip at first.
+```
+mosquitto_pub -h [broker_ip] -p 1883 -t key1 -u test1 -P 1234 -m "hello world!" -i producer
 ```
 
 4. For Subscriber
+* Dockerfile: the same as the publisher
+
+* Build docker image: the same as publisher
+
+* Build docker container:
 ```
-docker run -it --network my_network --name subscriber_ubuntu ubuntu:18.04
+docker run -it --network my_network --name subscriber mqtt_client
 ```
+
+* Execute publisher in ubuntu:
+Be sure to change broker_ip to real broker ip at first.
 ```
-apt update
-apt install mosquitto-clients -y
-mosquitto_sub -h 172.18.0.2 -p 1883 -t key1 -u test1 -P 1234 -i consumer
+mosquitto_pub -h [broker_ip] -p 1883 -t key1 -u test1 -P 1234 -m "hello world!" -i consumer
 ```
 
