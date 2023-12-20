@@ -3,11 +3,6 @@
 This project is to reproduce this vulnerability:
 [Protocol fuzzing to find security vulnerabilities of RabbitMQ](https://onlinelibrary.wiley.com/doi/abs/10.1002/cpe.6012)
 
-* Docker Image:
-```
-docker pull ubuntu:18.04
-```
-
 1. For RabbitMQ 3.6.10
 ```
 docker run -it --network my_network --name rabbitmq_server -p 1883:1883 -p 5672:5672 -p 15672:15672 ubuntu:18.04
@@ -38,32 +33,45 @@ sudo rabbitmqctl set_permissions -p / test3 ".*" ".*" ".*"
 ```
 
 2. For Fuzzer
+
+* Dockerfile:
 ```
-docker run -it --network my_network --name mqtt_fuzzer ubuntu:18.04
-```
-```
-apt update
-apt install git -y
-git clone https://gitlab.com/akihe/radamsa.git
-cd radamsa
-apt install make
-apt install wget
-apt install curl -y
-apt-get install build-essential -y
-sudo make OFLAGS=-01
-gzip -d < ol.c.gz > ol.c
-mkdir -p bin
-cc -Wall -O3 -o bin/ol ol.c
-./bin/ol -O1 -o radamsa.c rad/main.scm
-sudo make install
-cd ../
-apt install python2.7
-apt install python-pip
-pip install Twisted==13.2.0
-git clone https://github.com/F-secure/mqtt_fuzz.git
-python2.7 mqtt_fuzz.py 172.18.0.2 1883 -ratio 3 -delay 100
+FROM ubuntu:18.04
+
+WORKDIR /app
+
+RUN apt update
+RUN apt install git -y
+RUN git clone https://gitlab.com/akihe/radamsa.git
+RUN apt install make
+RUN apt install wget
+RUN apt install curl -y
+RUN apt install sudo
+RUN apt-get install build-essential -y
+RUN (cd radamsa && make OFLAGS=-01) || true
+RUN cd radamsa && gzip -d < ol.c.gz > ol.c && mkdir -p bin && ./bin/ol -O1 -o radamsa.c rad/main.scm && make install 
+RUN apt install python2.7 -y
+RUN apt install python-pip -y
+RUN pip install Twisted==13.2.0
+RUN git clone https://github.com/F-secure/mqtt_fuzz.git
 ```
 
+* Build docker image:
+```
+docker build -t mqtt_fuzzer
+```
+
+* Build docker container:
+```
+docker run -it --network my_network --name mqtt_fuzzer mqtt_fuzzer
+```
+
+* Execute fuzzer:
+Be sure to change broker_ip to real broker ip at first.
+```
+cd mqtt_fuzzer
+python2.7 mqtt_fuzz.py [broker_ip] 1883 -ratio 3 -delay 100
+```
 3. For Publisher
 ```
 docker run -it --network my_network --name publisher_ubuntu ubuntu:18.04
